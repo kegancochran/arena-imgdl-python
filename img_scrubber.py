@@ -11,17 +11,22 @@ def getChannel():
 
 def api(channel):
     contents = []
-    new_results = True
     page = 1
     url = "http://api.are.na/v2/channels/" + channel
-    # idk what i deleted here but it breaks here
-    # ['length'] / ['per']
+    new_contents = True
+
+    while new_contents:
+        response = requests.get(url + "?page=" + str(page)).json()
+        new_contents = response['contents']
+        contents.append(new_contents)
+        page += 1
+
     return contents
 
 def urlScraper(contents):
     urls = []
-    for content in contents:
-        urls.append(content['image']['original']['url'])
+    for block in contents:
+        urls.append(block['image']['original']['url'])
     return urls
 
 def imgDownloader(urls, force = False):
