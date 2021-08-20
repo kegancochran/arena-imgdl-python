@@ -5,31 +5,33 @@ import os
 import mimetypes
 
 def getChannel():
-    message = "Please enter the channel to be scrubbed.\nThis is the section of the URL after the last slash, ex:\nhttps://www.are.na/user-name/channelname\n"
+    message = "Please enter the slug of the channel to be scrubbed.\nThis is the section of the URL after the last slash, ex:\nhttps://www.are.na/user-name/slug\n"
     channel = input(message)
     return channel
 
-def api(channel):
+def getUrls(channel):
     contents = []
+    urls = []
     page = 1
     url = "http://api.are.na/v2/channels/" + channel
     new_contents = True
+    print('Fetching channel data...')
 
     while new_contents:
+        print('PAGE ' + str(page) + '...')
         response = requests.get(url + "?page=" + str(page)).json()
         new_contents = response['contents']
         contents.append(new_contents)
+        for block in new_contents:
+            urls.append(block['image']['original']['url'])
+            print((block['image']['original']['url']))
         page += 1
 
-    return contents
-
-def urlScraper(contents):
-    urls = []
-    for block in contents:
-        urls.append(block['image']['original']['url'])
+    img_quant = str(len(urls))
+    input(img_quant + ' images found. ' + 'Press enter to download. ')
     return urls
 
-def imgDownloader(urls, force = False):
+def imgDL(urls, force = False):
     for i in urls:
         url = i
         position = str(urls.index(url))
@@ -51,15 +53,7 @@ def imgDownloader(urls, force = False):
 
 def main():
     channel = getChannel()
-    contents = api(channel)
-    urls = urlScraper(contents)
-    imgDownloader(urls)
+    urls = getUrls(channel)
+    imgDL(urls)
 
 main()
-
-# blocks_quant = len(contents)
-# print(f"{blocks_quant} blocks found.")
-
-
-
-# TODO figure out pagination
